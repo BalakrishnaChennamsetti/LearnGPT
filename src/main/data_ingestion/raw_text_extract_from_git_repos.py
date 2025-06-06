@@ -18,12 +18,12 @@ class RawDataIngestion:
             str_data=""
             for data in final_text:
                 str_data+=data
-            print(str_data)
-            logger.info(str_data)
+            # print(str_data)
+            # logger.info(str_data)
         except BaseException:
             logger.warning("Raw data extraction is failed with ", exc_info=True)
         finally:
             self.driver.quit()
         return str_data
 
-RawDataIngestion().extract_raw_data()
+# RawDataIngestion().extract_raw_data()
