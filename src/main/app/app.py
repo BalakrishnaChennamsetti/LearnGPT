@@ -100,6 +100,7 @@ class App:
         print(len(train_loader))
         print(len(val_loader))
 
+
         train_tokens = 0
         for input_batch, target_batch in train_loader:
             train_tokens += input_batch.numel()
