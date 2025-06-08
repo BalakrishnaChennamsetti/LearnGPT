@@ -1,2 +1,3 @@
 torch
 tiktoken
+qdrant-client

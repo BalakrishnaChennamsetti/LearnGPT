@@ -12,6 +12,7 @@ from tokenization.bpe_tokenizer import Tokenizer
 from dataset_preparation.prepare_data import PrepareData
 from dataset_preparation.dataset import Dataset
 from configuration.model_config import ModelConfig
+from vec_embeddings.vec_embeddings import VecEmbeddings
 
 class App:
 
@@ -78,7 +79,7 @@ class App:
                         batch_size=self.batch_size,
                         max_length=self.max_length,
                         stride=self.context_length,
-                        drop_last=False,
+                        drop_last=True,
                         shuffle=False,  
                         num_workers=0
                         )
@@ -113,10 +114,39 @@ class App:
 
         # print(train_loader.dataset.__getitem__.__get__)
         # print(val_loader.dataset.__getitem__)
+        
+        batch_x, batch_y = next(iter(train_loader))
+        print("X:", batch_x)
+        print("Y:", batch_y)
+        
+        ## Training embedding vectors creation
+        all_train_X_vectors = []
+        all_train_y_vectors = []
 
-        # batch_x, batch_y = next(iter(train_loader))
-        # print("X:", batch_x)
-        # print("Y:", batch_y)
+        for batch_x, batch_y in train_loader:
+            self.vecembeddings = VecEmbeddings(batch_x, batch_y)
+            X_vector, y_vector = self.vecembeddings.embed()
+            all_train_X_vectors.append(X_vector)
+            all_train_y_vectors.append(y_vector)
+            # Optional: check values
+            print("X_vector shape:", X_vector.shape)
+            print("y_vector shape:", y_vector.shape)
+
+
+        ## Testing vector embeddings creation
+        all_test_X_vectors = []
+        all_test_y_vectors = []
+
+        for batch_x, batch_y in val_loader:
+            self.vecembeddings = VecEmbeddings(batch_x, batch_y)
+            X_vector, y_vector = self.vecembeddings.embed()
+            all_test_X_vectors.append(X_vector)
+            all_test_y_vectors.append(y_vector)
+            # Optional: check values
+            print("X_vector shape:", X_vector.shape)
+            print("y_vector shape:", y_vector.shape)
+
+
 
     
 app = App()
