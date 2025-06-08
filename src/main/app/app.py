@@ -96,6 +96,7 @@ class App:
         for x, y in val_loader:
             print(x.shape, y.shape)
 
+
         print(len(train_loader))
         print(len(val_loader))
 
