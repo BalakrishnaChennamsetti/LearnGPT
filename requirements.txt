@@ -1,6 +1,8 @@
 numpy
 pandas
-torch
+torch 
+torchvision 
+torchaudio
 tiktoken
 tensorflow>=2.15.0
 qdrant-client
