@@ -1,0 +1,32 @@
+name: CI with Conda
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-update-conda: true
+        activate-environment: myenv
+        environment-file: environment.yml
+        python-version: 3.10  # Optional: match your env.yml
+
+    - name: Verify Python & Install
+      run: |
+        conda info
+        conda list
+
+    - name: Run your script or test
+      run: |
+        python your_script.py
