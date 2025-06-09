@@ -1,5 +1,0 @@
-torch
-tiktoken
-numpy
-tensorflow>=2.15.0
-qdrant-client
