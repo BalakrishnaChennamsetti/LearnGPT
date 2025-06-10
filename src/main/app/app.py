@@ -13,7 +13,7 @@ from dataset_preparation.prepare_data import PrepareData
 from dataset_preparation.dataset import Dataset
 from configuration.model_config import ModelConfig
 from vec_embeddings.vec_embeddings import VecEmbeddings
-
+from transformerblock.gpt_architecture import GPTModel
 class App:
 
     def __init__(self):
@@ -21,6 +21,7 @@ class App:
         self.tokenizer = tiktoken.get_encoding("cl100k_base")
         modelconfig = ModelConfig()
         self.dataset = Dataset()
+        self.gPTModel = GPTModel(modelconfig)
 
         #Config Parameters
         self.batch_size = modelconfig.batch_size
@@ -31,6 +32,10 @@ class App:
         self.drop_last = modelconfig.drop_last
         self.num_workers = modelconfig.num_workers
 
+    # def load_model_with_pretrain_weights(self, path):
+    #     logits = self.gPTModel.forward()
+    #     return logits
+        
     def run(self):
 
         # 1. Raw data extarction and data ingestion
@@ -147,6 +152,8 @@ class App:
             # Optional: check values
             print("X_vector shape:", X_vector.shape)
             print("y_vector shape:", y_vector.shape)
+
+        # logits = self.load_model_with_pretrain_weights("src\main\resources\gpt2")
 
 
 
