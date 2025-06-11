@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import sys
 import os
 
@@ -14,27 +15,36 @@ from dataset_preparation.dataset import Dataset
 from configuration.model_config import ModelConfig
 from vec_embeddings.vec_embeddings import VecEmbeddings
 from transformerblock.gpt_architecture import GPTModel
+from transformerblock.load_weights import LoadWeights
+
 class App:
 
     def __init__(self):
 
         self.tokenizer = tiktoken.get_encoding("cl100k_base")
-        modelconfig = ModelConfig()
+        model_config = ModelConfig()
         self.dataset = Dataset()
-        self.gPTModel = GPTModel(modelconfig)
+        self.gpt_model = GPTModel(model_config)
+        self.gpt_model.eval()
+        self.load_weights = LoadWeights()
+        self.device = "cpu"
 
         #Config Parameters
-        self.batch_size = modelconfig.batch_size
-        self.max_length = modelconfig.max_len
-        self.stride = modelconfig.stride
-        self.context_length  = modelconfig.context_length
-        self.shuffle = modelconfig.shuffle
-        self.drop_last = modelconfig.drop_last
-        self.num_workers = modelconfig.num_workers
+        self.batch_size = model_config.batch_size
+        self.max_length = model_config.max_len
+        self.stride = model_config.stride
+        self.context_length  = model_config.context_length
+        self.shuffle = model_config.shuffle
+        self.drop_last = model_config.drop_last
+        self.num_workers = model_config.num_workers
 
-    # def load_model_with_pretrain_weights(self, path):
-    #     logits = self.gPTModel.forward()
-    #     return logits
+    def load_model_with_pretrain_weights(self, path):
+        # logits = self.gPTModel.forward(in_idx)
+        settings, params = self.load_weights.load_gpt2(path)
+        self.load_weights.load_weights_into_gpt2(self.gpt_model, params)
+        logger.log(1, "GPT2 Weights Successfully Loaded into Local LearnGPT Model...", "", exc_info=1)
+        self.gpt_model.to(self.device);
+        # return logits
         
     def run(self):
 
@@ -153,7 +163,7 @@ class App:
             print("X_vector shape:", X_vector.shape)
             print("y_vector shape:", y_vector.shape)
 
-        # logits = self.load_model_with_pretrain_weights("src\main\resources\gpt2")
+        logits = self.load_model_with_pretrain_weights("src/main/resources/gpt2/124M")
 
 
 
