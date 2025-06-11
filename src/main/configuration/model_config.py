@@ -15,3 +15,5 @@ class ModelConfig:
     qkv_bias: bool = True 
     drop_last: bool = True 
     num_workers: int = 0
+
+print(ModelConfig.context_length)
