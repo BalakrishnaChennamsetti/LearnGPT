@@ -9,3 +9,4 @@ qdrant-client
 tqdm
 selenium
 bs4
+tqdm

@@ -101,3 +101,9 @@ class LoadWeights:
 # loadWeights = LoadWeights()
 # settings, params = loadWeights.load_gpt2("src/main/resources/gpt2/124M")
 # print(params['wte'].shape)
+
+import tensorflow as tf
+import tqdm
+
+print("TensorFlow version:", tf.__version__)
+print("tqdm version:", tqdm.__version__)

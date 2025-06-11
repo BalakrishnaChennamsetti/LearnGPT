@@ -14,6 +14,7 @@ from dataset_preparation.prepare_data import PrepareData
 from dataset_preparation.dataset import Dataset
 from configuration.model_config import ModelConfig
 from vec_embeddings.vec_embeddings import VecEmbeddings
+
 from transformerblock.gpt_architecture import GPTModel
 from transformerblock.load_weights import LoadWeights
 
@@ -162,9 +163,8 @@ class App:
             # Optional: check values
             print("X_vector shape:", X_vector.shape)
             print("y_vector shape:", y_vector.shape)
-
+            
         logits = self.load_model_with_pretrain_weights("src/main/resources/gpt2/124M")
-
 
 
     
