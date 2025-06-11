@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from dataclasses import asdict
 
 class CausalAttention(nn.Module):
 
@@ -179,6 +179,8 @@ class LayerNorm(nn.Module):
 class GPTModel(nn.Module):
     def __init__(self, cfg):
         super().__init__()
+        cfg = asdict(cfg)
+
         self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
         self.pos_emb = nn.Embedding(cfg["context_length"], cfg["emb_dim"])
         self.drop_emb = nn.Dropout(cfg["drop_rate"])
