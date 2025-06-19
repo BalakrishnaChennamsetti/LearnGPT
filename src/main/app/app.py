@@ -55,14 +55,16 @@ class App:
                             context_size = ModelConfig().context_length,
                             top_k=None, 
                             eos_id=None,
-                            temperature = 1.2):
+                            temperature = 1):
         
         # For-loop is the same as before: Get logits, and only focus on last time step
+        i=1
         for _ in range(max_new_tokens):
-            print(idx, context_size)
-            # idx_cond = idx[:, -context_size:]
+            # print(idx, context_size)
+            idx_cond = idx[:, -context_size:]
+            # print(idx)
             with torch.no_grad():
-                logits = model(idx)
+                logits = model(idx_cond)
             logits = logits[:, -1, :]
             # New: Filter logits with top_k sampling
             if top_k is not None:
@@ -87,142 +89,143 @@ class App:
 
             if idx_next == eos_id:  # Stop generating early if end-of-sequence token is encountered and eos_id is specified
                 break
-
-            # Same as before: append sampled index to the running sequence
+            print(self.tokenizer_L.to_text(idx_next), end="")
+             # Same as before: append sampled index to the running sequence
             idx = torch.cat((idx, idx_next), dim=1)  # (batch_size, num_tokens+1)
-            print("idx", idx, self.tokenizer_L.to_text(idx), "ebd")
-            return self.tokenizer_L.to_text(idx)
+            # print(f"Sentence {i} -->", self.tokenizer_L.to_text(idx))
+            i+=1
+        return self.tokenizer_L.to_text(idx)
 
     
     def generate(self, text):
 
         # 1. Raw data extarction and data ingestion
-        raw_data_ingestion = RawDataIngestion()
-        raw_data_list = raw_data_ingestion.extract_raw_data()
+        # raw_data_ingestion = RawDataIngestion()
+        # raw_data_list = raw_data_ingestion.extract_raw_data()
 
-          #2.  Data cleaning and data preparation
-        data_clean_and_prepare = DataCleanAndPrepare(raw_data_list)
-        clean_data = data_clean_and_prepare.clean()
+        #   #2.  Data cleaning and data preparation
+        # data_clean_and_prepare = DataCleanAndPrepare(raw_data_list)
+        # clean_data = data_clean_and_prepare.clean()
 
-        #3. Tokenization
-        tokenizer = tiktoken.get_encoding("cl100k_base")
-        # print(clean_data)
-        total_characters = len(clean_data)
-        total_tokens = len(tokenizer.encode(clean_data))
-        print("Tokend Total:", total_tokens,"\n\n\n")
-        print("Characters:", total_characters)
-        # print("Tokens:", total_tokens)
+        # #3. Tokenization
+        # tokenizer = tiktoken.get_encoding("cl100k_base")
+        # # print(clean_data)
+        # total_characters = len(clean_data)
+        # total_tokens = len(tokenizer.encode(clean_data))
+        # print("Tokend Total:", total_tokens,"\n\n\n")
+        # print("Characters:", total_characters)
+        # # print("Tokens:", total_tokens)
 
-        # dataset = PrepareData(clean_data, self.tokenizer, max_length, stride)
+        # # dataset = PrepareData(clean_data, self.tokenizer, max_length, stride)
 
-        # Train/validation ratio
-        train_ratio = 0.90
-        split_idx = int(train_ratio * total_characters)
-        train_data = clean_data[:split_idx]
-        val_data = clean_data[split_idx:]
-        print(len(train_data), len(val_data))
-        print(len(train_data)+len(val_data)-total_characters)
+        # # Train/validation ratio
+        # train_ratio = 0.90
+        # split_idx = int(train_ratio * total_characters)
+        # train_data = clean_data[:split_idx]
+        # val_data = clean_data[split_idx:]
+        # print(len(train_data), len(val_data))
+        # print(len(train_data)+len(val_data)-total_characters)
 
 
-        torch.manual_seed(123)
-        train_loader = self.dataset.initiate_analysis(
-                        train_data,
-                        tokenizer = tokenizer,
-                        batch_size=self.batch_size,
-                        max_length=self.max_length,
-                        stride=self.context_length,
-                        drop_last=True,
-                        shuffle=True,
-                        num_workers=0
-                        )   
+        # torch.manual_seed(123)
+        # train_loader = self.dataset.initiate_analysis(
+        #                 train_data,
+        #                 tokenizer = tokenizer,
+        #                 batch_size=self.batch_size,
+        #                 max_length=self.max_length,
+        #                 stride=self.context_length,
+        #                 drop_last=True,
+        #                 shuffle=True,
+        #                 num_workers=0
+        #                 )   
 
-        val_loader =  self.dataset.initiate_analysis(
-                        val_data,
-                        tokenizer = tokenizer,
-                        batch_size=self.batch_size,
-                        max_length=self.max_length,
-                        stride=self.context_length,
-                        drop_last=True,
-                        shuffle=False,  
-                        num_workers=0
-                        )
+        # val_loader =  self.dataset.initiate_analysis(
+        #                 val_data,
+        #                 tokenizer = tokenizer,
+        #                 batch_size=self.batch_size,
+        #                 max_length=self.max_length,
+        #                 stride=self.context_length,
+        #                 drop_last=True,
+        #                 shuffle=False,  
+        #                 num_workers=0
+        #                 )
         
-        # Sanity check
+        # # Sanity check
 
-        assert total_tokens * (train_ratio) > self.context_length, "Not enough tokens for the training loader. Try to lower the `GPT_CONFIG_124M['context_length']` or increasethe `training_ratio`"
-        assert total_tokens * (1-train_ratio) > self.context_length, "Not enough tokens for the validation loader. Try to lower the `GPT_CONFIG_124M['context_length']` or decrease the `training_ratio`"
+        # assert total_tokens * (train_ratio) > self.context_length, "Not enough tokens for the training loader. Try to lower the `GPT_CONFIG_124M['context_length']` or increasethe `training_ratio`"
+        # assert total_tokens * (1-train_ratio) > self.context_length, "Not enough tokens for the validation loader. Try to lower the `GPT_CONFIG_124M['context_length']` or decrease the `training_ratio`"
 
-        print("Train loader:")
-        for x, y in train_loader:
-            print(x.shape, y.shape)
+        # print("Train loader:")
+        # for x, y in train_loader:
+        #     print(x.shape, y.shape)
 
-        print("\nValidation loader:")
-        for x, y in val_loader:
-            print(x.shape, y.shape)
-
-
-        print(len(train_loader))
-        print(len(val_loader))
+        # print("\nValidation loader:")
+        # for x, y in val_loader:
+        #     print(x.shape, y.shape)
 
 
-        train_tokens = 0
-        for input_batch, target_batch in train_loader:
-            train_tokens += input_batch.numel()
+        # print(len(train_loader))
+        # print(len(val_loader))
 
-        val_tokens = 0
-        for input_batch, target_batch in val_loader:
-            val_tokens += input_batch.numel()
 
-        print("Training tokens:", train_tokens)
-        print("Validation tokens:", val_tokens)
-        print("All tokens:", train_tokens + val_tokens)
+        # train_tokens = 0
+        # for input_batch, target_batch in train_loader:
+        #     train_tokens += input_batch.numel()
 
-        # print(train_loader.dataset.__getitem__.__get__)
-        # print(val_loader.dataset.__getitem__)
+        # val_tokens = 0
+        # for input_batch, target_batch in val_loader:
+        #     val_tokens += input_batch.numel()
+
+        # print("Training tokens:", train_tokens)
+        # print("Validation tokens:", val_tokens)
+        # print("All tokens:", train_tokens + val_tokens)
+
+        # # print(train_loader.dataset.__getitem__.__get__)
+        # # print(val_loader.dataset.__getitem__)
         
-        batch_x, batch_y = next(iter(train_loader))
-        print("X:", batch_x)
-        print("Y:", batch_y)
+        # batch_x, batch_y = next(iter(train_loader))
+        # print("X:", batch_x)
+        # print("Y:", batch_y)
         
-        ## Training embedding vectors creation
-        all_train_X_vectors = []
-        all_train_y_vectors = []
+        # ## Training embedding vectors creation
+        # all_train_X_vectors = []
+        # all_train_y_vectors = []
 
-        for batch_x, batch_y in train_loader:
-            self.vecembeddings = VecEmbeddings(batch_x, batch_y)
-            X_vector, y_vector = self.vecembeddings.embed()
-            all_train_X_vectors.append(X_vector)
-            all_train_y_vectors.append(y_vector)
-            # Optional: check values
-            print("X_vector shape:", X_vector.shape)
-            print("y_vector shape:", y_vector.shape)
+        # for batch_x, batch_y in train_loader:
+        #     self.vecembeddings = VecEmbeddings(batch_x, batch_y)
+        #     X_vector, y_vector = self.vecembeddings.embed()
+        #     all_train_X_vectors.append(X_vector)
+        #     all_train_y_vectors.append(y_vector)
+        #     # Optional: check values
+        #     print("X_vector shape:", X_vector.shape)
+        #     print("y_vector shape:", y_vector.shape)
 
 
-        ## Testing vector embeddings creation
-        all_test_X_vectors = []
-        all_test_y_vectors = []
+        # ## Testing vector embeddings creation
+        # all_test_X_vectors = []
+        # all_test_y_vectors = []
 
-        for batch_x, batch_y in val_loader:
-            self.vecembeddings = VecEmbeddings(batch_x, batch_y)
-            X_vector, y_vector = self.vecembeddings.embed()
-            all_test_X_vectors.append(X_vector)
-            all_test_y_vectors.append(y_vector)
-            # Optional: check values
-            print("X_vector shape:", X_vector.shape)
-            print("y_vector shape:", y_vector.shape)
+        # for batch_x, batch_y in val_loader:
+        #     self.vecembeddings = VecEmbeddings(batch_x, batch_y)
+        #     X_vector, y_vector = self.vecembeddings.embed()
+        #     all_test_X_vectors.append(X_vector)
+        #     all_test_y_vectors.append(y_vector)
+        #     # Optional: check values
+        #     print("X_vector shape:", X_vector.shape)
+        #     print("y_vector shape:", y_vector.shape)
             
-        loaded_model = self.load_model_with_pretrain_weights("src/main/resources/gpt2/124M")
+        loaded_model = self.load_model_with_pretrain_weights("C:/Balu/LearnGPT/src/main/resources/GPT2_774M")
         output = self.__output(
                             model = loaded_model,
-                            idx = self.tokenizer_L.tokenize(text),
-                            max_new_tokens = 25,
+                            idx = self.tokenizer_L.tokenize(text).to(self.device),
+                            max_new_tokens = 200,
                             context_size = ModelConfig().context_length,
-                            top_k = 50,
-                            temperature = 1.4 #For future implementation purpose
+                            # top_k = 1,
+                            temperature = 0.8 #For future implementation purpose
                             )
         print(output)
 
 
     
 app = App()
-app.generate("What is capital of India.? ")
+app.generate("Explain me about World War II ?")

@@ -11,6 +11,8 @@ class Tokenizer():
         encoded_tensor = torch.tensor(encoded).unsqueeze(0) # add batch dimension
         return encoded_tensor
     def to_text(self, idx):
+        if(isinstance(idx, int)):
+            return self.tokenizer.decode(idx)
         flat = idx.squeeze(0) # remove batch dimension
         return self.tokenizer.decode(flat.tolist())
 
