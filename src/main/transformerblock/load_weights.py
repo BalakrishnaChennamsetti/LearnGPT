@@ -14,12 +14,14 @@ class LoadWeights:
     def __load_gpt2_params_from_tf_ckpt(self, ckpt_path, settings):
         # Initialize parameters dictionary with empty blocks for each layer
         params = {"blocks": [{} for _ in range(settings["n_layer"])]}
+        # print(tf.train.list_variables(ckpt_path))
         # Iterate over each variable in the checkpoint
         for name, _ in tf.train.list_variables(ckpt_path):
         # Load the variable and remove singleton dimensions
+            # print("-->", name)
             variable_array = np.squeeze(tf.train.load_variable(ckpt_path, name))
             # Process the variable name to extract relevant parts
-            print("name", name)
+            # print("name", name)
             variable_name_parts = name.split("/")[1:] # Skip the 'model/' prefix
             # Identify the target dictionary for the variable
             target_dict = params
@@ -92,10 +94,12 @@ class LoadWeights:
     def load_gpt2(self, model_dir):
         # Load settings and params
         tf_ckpt_path = tf.train.latest_checkpoint(model_dir)
-        logger.log(1, f"The Check Points Path {tf_ckpt_path}","", exc_info=1)
+        print(tf_ckpt_path)
+        logger.info(f"The Check Points Path {tf_ckpt_path}")
         settings = json.load(open(os.path.join(model_dir, "hparams.json")))
         params = self.__load_gpt2_params_from_tf_ckpt(tf_ckpt_path, settings)
-        logger.log(1, f"Params and Setting Extracted Successfully...Params Keys{params.keys()} and Model Setting Values {settings}", "",  exc_info=1)
+        logger.info(f"Params and Setting Extracted Successfully...Params Keys{params.keys()} and Model Setting Values {settings}")
+        
         return settings, params
     
 # loadWeights = LoadWeights()
